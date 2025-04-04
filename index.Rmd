@@ -1,0 +1,64 @@
+---
+title: "Gaming Habits and Mental Health"
+author: "Your Name"
+date: "April 2025"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+---
+
+## Project Overview
+
+This website presents an interactive exploration of the relationship between video gaming habits and mental health outcomes. Using a comprehensive dataset of over 12,000 participants, we examine how different gaming preferences, intensity levels, and game genres correlate with measures of anxiety, life satisfaction, and social phobia.
+
+As video games have become a dominant form of entertainment worldwide, understanding their relationship with psychological well-being has become increasingly important. This analysis explores these connections through interactive visualizations that allow you to explore the data yourself.
+
+## Key Mental Health Metrics
+
+The analysis focuses on three standardized psychological assessment measures:
+
+- **GAD_T**: Generalized Anxiety Disorder assessment (0-21 scale)
+- **SWL_T**: Satisfaction With Life scale (5-35 scale)
+- **SPIN_T**: Social Phobia Inventory (0-68 scale)
+
+## What You'll Find Here
+
+This site contains interactive visualizations that allow you to:
+
+1. Compare mental health metrics across different gaming intensity levels
+2. Explore the relationship between weekly gaming hours and psychological outcomes
+3. Examine how different game genres relate to mental health profiles
+4. Compare multiplayer vs. single-player gaming experiences
+
+Click on the "Analysis" tab to explore the interactive visualizations.
+
+```{r, message=FALSE, echo=FALSE, warning=FALSE}
+library(plotly)
+
+# Generate a simple overview plot that shows dataset distribution
+sample_data <- data.frame(
+  Category = c("Casual Gamers", "Regular Gamers", "Dedicated Gamers", "Hardcore Gamers"),
+  Percentage = c(15, 35, 30, 20)
+)
+
+fig <- plot_ly(sample_data, labels = ~Category, values = ~Percentage, type = 'pie',
+              textinfo = 'label+percent',
+              insidetextorientation = 'radial',
+              marker = list(colors = c('#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3')))
+
+fig <- fig %>% layout(title = 'Distribution of Gaming Intensity in Dataset',
+                     xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                     yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+fig
+```
+
+The pie chart above shows the approximate distribution of gaming intensity in our dataset. This provides context for the more detailed analyses available on the Analysis page.
+
+## About the Project
+
+This project was developed as part of JSC370: Data Science II. The analysis combines data visualization techniques with statistical methods to explore potential relationships between gaming habits and mental health outcomes.
+
+The dataset used contains survey responses from gamers worldwide, enriched with game metadata from the RAWG video game database API. This additional context allows for more nuanced analysis by game genre, release date, and other characteristics.

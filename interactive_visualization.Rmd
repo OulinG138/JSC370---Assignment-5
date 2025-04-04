@@ -1,0 +1,166 @@
+---
+title: "JSC370 Assignment 5 - Interactive Visualization I and II"
+author: "Your Name"
+date: "April 2025"
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+## Gaming Habits and Mental Health: Interactive Visualizations
+
+The following interactive visualizations explore the relationships between gaming preferences, habits, and mental health outcomes using a comprehensive dataset that includes player information, gaming preferences, and standardized mental health metrics.
+
+```{r, message = FALSE, echo=FALSE, warning=FALSE}
+library(tidyverse)
+library(plotly)
+library(knitr)
+library(widgetframe)
+library(DT)
+knitr::opts_chunk$set(include=TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r}
+# Load the dataset
+data <- read.csv("gaming_mental_health_enriched.csv")
+```
+
+## Figure 1: Gaming Intensity vs Mental Health Metrics
+
+This visualization explores how different levels of gaming intensity (measured by weekly hours spent gaming) relate to mental health outcomes. The mental health metrics examined include GAD_T (anxiety), SWL_T (life satisfaction), and SPIN_T (social phobia).
+
+```{r include=TRUE, echo=FALSE}
+# Create a summary dataset by gaming intensity
+intensity_data <- data %>%
+  filter(!is.na(gaming_intensity) & !is.na(GAD_T) & !is.na(SWL_T) & !is.na(SPIN_T)) %>%
+  group_by(gaming_intensity) %>%
+  summarize(
+    Anxiety = mean(GAD_T, na.rm = TRUE),
+    Life_Satisfaction = mean(SWL_T, na.rm = TRUE),
+    Social_Phobia = mean(SPIN_T, na.rm = TRUE),
+    Count = n()
+  )
+
+# Convert to long format for plotting
+intensity_long <- intensity_data %>%
+  pivot_longer(cols = c(Anxiety, Life_Satisfaction, Social_Phobia),
+               names_to = "Metric",
+               values_to = "Score")
+
+# Create the plot
+p1 <- ggplot(intensity_long, aes(x = gaming_intensity, y = Score, fill = Metric)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(title = "Mental Health Metrics by Gaming Intensity",
+       x = "Gaming Intensity",
+       y = "Average Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Make it interactive
+ggplotly(p1) %>%
+  layout(hovermode = "compare")
+```
+
+The figure above shows the average scores for anxiety (GAD_T), life satisfaction (SWL_T), and social phobia (SPIN_T) across different gaming intensity categories. Notably, as gaming intensity increases from Casual to Hardcore, anxiety and social phobia scores tend to increase while life satisfaction decreases. This suggests that excessive gaming may be associated with poorer mental health outcomes.
+
+## Figure 2: Relationship Between Gaming Hours and Mental Health Metrics
+
+This scatterplot visualization shows the relationship between weekly gaming hours and various mental health metrics, with a smoothed trendline to highlight the overall pattern.
+
+```{r include=TRUE, echo=FALSE}
+# Filter data to remove outliers and missing values
+hours_data <- data %>%
+  filter(!is.na(Hours) & !is.na(GAD_T) & Hours < 100) # Remove extreme outliers
+
+# Create scatter plot with smoother for Anxiety
+p2 <- ggplot(hours_data, aes(x = Hours, y = GAD_T)) +
+  geom_point(alpha = 0.3, color = "blue") +
+  geom_smooth(method = "loess", color = "red") +
+  labs(title = "Relationship Between Gaming Hours and Anxiety",
+       x = "Weekly Gaming Hours",
+       y = "Anxiety Score (GAD_T)") +
+  theme_minimal()
+
+# Make it interactive
+ggplotly(p2)
+```
+
+This visualization demonstrates the relationship between weekly gaming hours and anxiety scores. The trendline suggests a modest positive correlation, indicating that more time spent gaming is associated with slightly higher anxiety levels. The scatter plot allows for interactive exploration to identify potential patterns and outliers in the data.
+
+## Figure 3: Mental Health Comparison by Game Genre
+
+This interactive heatmap visualizes how different game genres relate to various mental health metrics, allowing for easy comparison across genres.
+
+```{r include=TRUE, echo=FALSE}
+# Create a summary dataset by game genre
+genre_data <- data %>%
+  select(is_action_game, is_rpg_game, is_strategy_game, is_shooter_game, is_mmo_game,
+         GAD_T, SWL_T, SPIN_T) %>%
+  filter(!is.na(GAD_T) & !is.na(SWL_T) & !is.na(SPIN_T))
+
+# Calculate average mental health metrics for each genre
+action_metrics <- genre_data %>%
+  filter(is_action_game == 1) %>%
+  summarize(
+    Genre = "Action",
+    Anxiety = mean(GAD_T, na.rm = TRUE),
+    Life_Satisfaction = mean(SWL_T, na.rm = TRUE),
+    Social_Phobia = mean(SPIN_T, na.rm = TRUE)
+  )
+
+rpg_metrics <- genre_data %>%
+  filter(is_rpg_game == 1) %>%
+  summarize(
+    Genre = "RPG",
+    Anxiety = mean(GAD_T, na.rm = TRUE),
+    Life_Satisfaction = mean(SWL_T, na.rm = TRUE),
+    Social_Phobia = mean(SPIN_T, na.rm = TRUE)
+  )
+
+strategy_metrics <- genre_data %>%
+  filter(is_strategy_game == 1) %>%
+  summarize(
+    Genre = "Strategy",
+    Anxiety = mean(GAD_T, na.rm = TRUE),
+    Life_Satisfaction = mean(SWL_T, na.rm = TRUE),
+    Social_Phobia = mean(SPIN_T, na.rm = TRUE)
+  )
+
+shooter_metrics <- genre_data %>%
+  filter(is_shooter_game == 1) %>%
+  summarize(
+    Genre = "Shooter",
+    Anxiety = mean(GAD_T, na.rm = TRUE),
+    Life_Satisfaction = mean(SWL_T, na.rm = TRUE),
+    Social_Phobia = mean(SPIN_T, na.rm = TRUE)
+  )
+
+mmo_metrics <- genre_data %>%
+  filter(is_mmo_game == 1) %>%
+  summarize(
+    Genre = "MMO",
+    Anxiety = mean(GAD_T, na.rm = TRUE),
+    Life_Satisfaction = mean(SWL_T, na.rm = TRUE),
+    Social_Phobia = mean(SPIN_T, na.rm = TRUE)
+  )
+
+# Combine all genre metrics
+all_genres <- bind_rows(action_metrics, rpg_metrics, strategy_metrics, shooter_metrics, mmo_metrics)
+
+# Reshape for heatmap
+genre_long <- all_genres %>%
+  pivot_longer(cols = c(Anxiety, Life_Satisfaction, Social_Phobia),
+               names_to = "Metric",
+               values_to = "Score")
+
+# Create the heatmap
+plot_ly(genre_long, x = ~Genre, y = ~Metric, z = ~Score, type = "heatmap",
+        colors = colorRamp(c("blue", "white", "red"))) %>%
+  layout(title = "Mental Health Metrics by Game Genre",
+         xaxis = list(title = "Game Genre"),
+         yaxis = list(title = "Mental Health Metric"))
+```
+
+This heatmap visualization reveals differences in mental health metrics across various game genres. The color intensity represents the average score for each mental health measure, allowing for quick visual comparison. Interesting patterns emerge, such as how certain genres may be associated with higher anxiety or social phobia levels, while others correlate with higher life satisfaction.
