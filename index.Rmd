@@ -1,6 +1,6 @@
 ---
 title: "Gaming Habits and Mental Health"
-author: "Your Name"
+author: "Kaixi Wang"
 date: "April 2025"
 output: 
   html_document:

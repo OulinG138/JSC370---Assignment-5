@@ -1,7 +1,5 @@
 ---
 title: "JSC370 Assignment 5 - Interactive Visualization I and II"
-author: "Your Name"
-date: "April 2025"
 output:
   html_document:
     toc: TRUE
